@@ -37,7 +37,7 @@ public class MainQuizPage extends AppCompatActivity {
     RadioButton option4;
     Button next;
     CountDownTimer countDownTimer;
-    int timerVal = 20;
+    int timerVal = 0;
     ProgressBar progressBar;
     boolean flag = false;
 
@@ -97,17 +97,17 @@ public class MainQuizPage extends AppCompatActivity {
                         countDownTimer = new CountDownTimer(20000,1000) {
                             @Override
                             public void onTick(long l) {
-                                timerVal -= 1;
-                                progressBar.setProgress(timerVal);
+                                timerVal++;
+                                progressBar.setProgress((int)timerVal*100/(20000/1000));
                             }
 
                             @RequiresApi(api = Build.VERSION_CODES.P)
                             @Override
                             public void onFinish() {
-                                timerVal = 20;
-                                progressBar.resetPivot();
+                                next.performClick();
                             }
-                        }.start();
+                        };
+                        countDownTimer.start();
 
                         i[0]++;
 
@@ -116,6 +116,11 @@ public class MainQuizPage extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
 
+                                countDownTimer.cancel();
+                                timerVal = 0;
+                                progressBar.setProgress(0);
+
+                                //countDownTimer.onFinish();
                                 if(option1.isChecked()){
                                     if(option1.getText().equals(correctAns[0])){
                                         count[0]++;
@@ -158,7 +163,6 @@ public class MainQuizPage extends AppCompatActivity {
                                 correctAns[0] = list.get(i[0]).get("correct");
 
                                 //resetting the counter and progress bar for next question
-                               countDownTimer.onFinish();
                                countDownTimer.start();
                                //progressBar.setProgress();
 
