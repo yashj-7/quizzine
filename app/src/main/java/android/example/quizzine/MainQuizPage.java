@@ -18,6 +18,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -39,12 +43,18 @@ public class MainQuizPage extends AppCompatActivity {
     CountDownTimer countDownTimer;
     int timerVal = 0;
     ProgressBar progressBar;
-    boolean flag = false;
+    GoogleSignInAccount account;
 
     //to prevent user from going back to previous screen by pressing back button
     @Override
     public void onBackPressed() {
         return;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        account = GoogleSignIn.getLastSignedInAccount(this);
     }
 
     @Override
@@ -153,6 +163,14 @@ public class MainQuizPage extends AppCompatActivity {
                                 }
                                 if(i[0]==list.size()){
                                     Toast.makeText(MainQuizPage.this, ""+count[0], Toast.LENGTH_SHORT).show();
+                                    HashMap<String,String> score = new HashMap<>();
+                                    score.put(getIntent().getStringExtra("qId"),String.valueOf(count[0]));
+                                    db.collection("users").document(account.getId()).collection("quizDetails").document(getIntent().getStringExtra("qId")).set(score).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                                     startActivity(new Intent(MainQuizPage.this,MainActivity.class));
                                 }
                                 questionView.setText(list.get(i[0]).get("question"));
